@@ -19,7 +19,7 @@ class Tag(models.Model):
     )
     color = models.CharField(
         verbose_name='Цветовой HEX-код',
-        # default='#49B64E',
+        default='#49B64E',  # изначально выбран цвет, отображен в админке
         max_length=7,
         unique=True,
         blank=False
@@ -92,7 +92,7 @@ class Recipe(models.Model):
         verbose_name='Тег',
         related_name='recipes'
     )
-    cooking_time =models.DateTimeField(
+    cooking_time =models.PositiveSmallIntegerField(
         verbose_name='Время приготовления в минутах',
     )
     created_at = models.DateTimeField(

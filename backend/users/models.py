@@ -1,5 +1,5 @@
-from django.contrib.auth.models import AbstractUser, Group, Permission
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.auth.models import AbstractUser
+# from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 # from .validators import validate_username, validate_year
@@ -17,6 +17,8 @@ class User(AbstractUser):
     """
     Модель пользователя.
     """
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['id', 'username', 'first_name', 'last_name']
     username = models.CharField(
         verbose_name='Логин',
         # validators=(validate_username,),
@@ -46,14 +48,10 @@ class User(AbstractUser):
         max_length=150,
         blank=True
     )
-    groups = models.ManyToManyField(
-        Group,
-        related_name='user_groups'
-    )
-    user_permissions = models.ManyToManyField(
-        Permission, 
-        related_name='user_permissions'
-    )
+    # user_permissions = models.ManyToManyField(
+    #     Permission, 
+    #     related_name='user_permissions'
+    # )
     # role = models.CharField(
     #     verbose_name='роль',
     #     max_length=20,
@@ -74,15 +72,15 @@ class User(AbstractUser):
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
-    @property
-    def is_user(self):
-        """Авторизованный пользователь"""
-        return self.role == USER
+    # @property
+    # def is_user(self):
+    #     """Авторизованный пользователь"""
+    #     return self.role == USER
 
-    @property
-    def is_admin(self):
-        """Администратор"""
-        return self.role == ADMIN
+    # @property
+    # def is_admin(self):
+    #     """Администратор"""
+    #     return self.role == ADMIN
 
     def __str__(self) -> str:
         return self.username
