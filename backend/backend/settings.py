@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
-from datetime import timedelta
+# from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -28,6 +28,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+INTERNAL_IPS = ['127.0.0.1']
+
+CORS_URLS_REGEX = r'^/api/.*$'
+
+CORS_ALLOWED_ORIGINS = ['http://127.0.0.1:3000']
 
 # Application definition
 
@@ -45,11 +50,13 @@ INSTALLED_APPS = [
     # 'django_filters',
     'recipes.apps.RecipesConfig',
     'users.apps.UsersConfig',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -100,6 +107,8 @@ DATABASES = {
 #     }
 # }
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -153,9 +162,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
-    # 'DEFAULT_PAGINATION_CLASS':
-    #     'rest_framework.pagination.PageNumberPagination',
-    # 'PAGE_SIZE': 5,
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 6,
 }
 
 # SIMPLE_JWT = {

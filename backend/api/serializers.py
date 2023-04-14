@@ -46,11 +46,11 @@ class RecipeSerializer(serializers.ModelSerializer):
     У рецепта может быть много ингридиентов и тэгов.
     Но у ингридиентов и тэгов может быть один рецепт.
     """
-    # ingredient = serializers.SlugRelatedField(
-    #     slug_field='slug', queryset=Ingredient.objects.all()
-    # )
-    # tag = serializers.SlugRelatedField(
-    #     slug_field='slug', queryset=Tag.objects.all()
+    # ingredient = serializers.CharField(
+    # #     # slug_field='slug', queryset=Ingredient.objects.all()
+    # # )
+    # tag = TagSerializer(
+    #     # slug_field='slug', queryset=Tag.objects.all()
     # )
     class Meta:
         model = Recipe

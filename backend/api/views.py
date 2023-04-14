@@ -47,19 +47,18 @@ from .serializers import (
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    pass
 
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    pass
+    pagination_class = None
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    pass
+    pagination_class = None
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -75,33 +74,33 @@ class UsersViewSet(viewsets.ModelViewSet):
     search_fields = ('username',)
     http_method_names = ['post', 'patch', 'get', 'delete']
 
-    @action(
-        methods=['GET', 'PATCH'],
-        detail=False,
-        # permission_classes=(IsAuthenticated,),
-        url_path='me',
-        url_name='me'
-    )
-    def info_about_user(self, request):
-        serializer = CustomUserSerializer(request.user)
-        if request.method == 'PATCH':
-            if request.user.is_admin:
-                serializer = UserSerializer(
-                    request.user,
-                    data=request.data,
-                    partial=True
-                )
+    # @action(
+    #     methods=['GET', 'PATCH'],
+    #     detail=False,
+    #     # permission_classes=(IsAuthenticated,),
+    #     url_path='me',
+    #     url_name='me'
+    # )
+    # def info_about_user(self, request):
+    #     serializer = CustomUserSerializer(request.user)
+    #     if request.method == 'PATCH':
+    #         if request.user.is_admin:
+    #             serializer = UserSerializer(
+    #                 request.user,
+    #                 data=request.data,
+    #                 partial=True
+    #             )
 
-            else:
-                serializer = NotAdminSerializer(
-                    request.user,
-                    data=request.data,
-                    partial=True
-                )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    #         else:
+    #             serializer = NotAdminSerializer(
+    #                 request.user,
+    #                 data=request.data,
+    #                 partial=True
+    #             )
+    #         serializer.is_valid(raise_exception=True)
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_200_OK)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
     
     
 # class TitleViewSet(viewsets.ModelViewSet):
