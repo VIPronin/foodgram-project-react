@@ -67,6 +67,17 @@ class RecipeSerializer(serializers.ModelSerializer):
             'cooking_time',
         )
 
+# class FavoriteSerializer(serializers.ModelSerializer):
+#     """
+#     Сериализатор для вкладки избранное.
+#     """
+
+
+# class ShoppingCartSerializer(serializers.ModelSerializer):
+#     """
+#     Сериализатор для карточки покупок.
+#     """
+
 
 class CustomUserSerializer(UserSerializer):
     """
@@ -92,6 +103,26 @@ class CustomUserSerializer(UserSerializer):
             'last_name',
             # 'is_subscribed',
         )
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для подписчиков.
+    """
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            # 'is_subscribed',
+            'recipes',
+            # 'recipes_count',
+        )
+
 
 
 # class CurrentUserDefault(serializers.Serializer):

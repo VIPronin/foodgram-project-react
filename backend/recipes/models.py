@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.db import models
 
 from users.models import User
@@ -44,6 +44,7 @@ class Ingredient(models.Model):
         verbose_name='Название ингредиента',
         max_length=40
     )
+    # в тех описании проекта этот пункт есть а в редоке нет.
     amount = models.PositiveIntegerField(
         verbose_name='Количество',
     )
@@ -106,3 +107,63 @@ class Recipe(models.Model):
         return self.name
 
 
+class RecipeIngredient(models.Model):
+    """
+    Связующая таблица рецепта и ингридиента.
+    """
+    amount = models.PositiveIntegerField(
+        verbose_name='Колличество',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='рецепт',
+    )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        verbose_name='Ингридиент',
+    )
+
+    def __str__(self):
+        return f'{self.ingredient} - {self.amount}'
+
+
+class Favorite(models.Model):
+    """
+    Модель для добавления рецепта в ИЗБРАННОЕ.
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+        # related_name='favorites',
+        # blank=False
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт',
+        # related_name='favorites',
+        # blank=False
+    )
+
+class ShoppingCart(models.Model):
+    """
+    Модель списка покупок.
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+        # related_name='favorites',
+        # blank=False
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт',
+        # related_name='favorites',
+        # blank=False
+    )
+    

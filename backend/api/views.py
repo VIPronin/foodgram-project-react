@@ -15,15 +15,10 @@ from rest_framework.response import Response
 # from rest_framework.views import APIView
 # from rest_framework_simplejwt.tokens import RefreshToken
 from recipes.models import (
-    # Category,
-    # Genre, Review,
-    # Title,
     Ingredient,
     Recipe,
     Tag,
     User)
-
-# from backend.settings import EMAIL_ADMIN
 
 # from .filters import TitleFilter
 # from .mixins import GenreCategoryViewSet
@@ -32,14 +27,8 @@ from recipes.models import (
 #     # AdminUserOrReadOnly,
 #     IsAdmin)
 from .serializers import (
-    # CategorySerializer,
-    # CommentSerializer,
     IngredientSerializer,
-    # GetTokenSerializer,
-    # NotAdminSerializer,
-    # ReadOnlyTitleSerializer,
     RecipeSerializer,
-    # SignUpSerializer,
     TagSerializer,
     CustomUserSerializer)
 
