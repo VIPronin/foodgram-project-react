@@ -1,5 +1,13 @@
 version: '3.3'
+# version: '3.8' в учебном проекте
 services:
+
+  # db:
+  #   image: postgres:13.0-alpine
+  #   volumes:
+  #     - db_value:/var/lib/postgresql/data/
+  #   env_file:
+  #     - ./.env
 
   frontend:
     build:
@@ -7,11 +15,40 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
+  
   nginx:
-    image: nginx:1.19.3
+    image: nginx:1.21.3-alpine
     ports:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
+      # - static_value:/var/html/static/
+      # - media_value:/var/html/media/
+    # depends_on:
+    #   - web
+
+# для автоматических созданий миграций
+  # migrate:
+  #   image: vladislavpronin/backend:latest
+  #   volumes:
+  #     - sqlite:/app/db  -сделать директорию
+  #   command: py manage.py migrate
+
+  # api_Artem:
+  #   image: vladislavpronin/backend:latest
+  #   build: .
+  #   restart: unless-stopped
+  #   volumes:
+  #     - sqlite:/app/db - сделать директорию
+  #   env_file:
+  #     - ./.env
+  #   depends_on:
+  #     - migrate
+
+volumes:
+  # sqlite: поменять в сеттингс базу данный 01.43.20 и сделать директорию
+  postgres_data:
+  # static_backend:
+  # media_backend:

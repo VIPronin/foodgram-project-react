@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import (
-    Follow,
+    Subscriptions,
     User
 )
 
@@ -13,12 +13,9 @@ class UserAdmin(admin.ModelAdmin):
         'email',
         'first_name',
         'last_name',
-        # 'role',
-        # 'confirmation_code',
     )
     search_fields = (
         'username',
-        # 'role',
     )
     list_filter = (
         'email',
@@ -27,21 +24,17 @@ class UserAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
 
 
-class FollowAdmin(admin.ModelAdmin):
+class SubscriptionsAdmin(admin.ModelAdmin):
     list_display = (
-        # 'pk',
         'user',
         'following',
     )
-    # search_fields = (
-    #     'username',
-    #     # 'role',
-    # )
     list_filter = (
         'user',
         'following',
     )
     empty_value_display = '-пусто-'
 
+
 admin.site.register(User, UserAdmin)
-admin.site.register(Follow, FollowAdmin)
+admin.site.register(Subscriptions, SubscriptionsAdmin)

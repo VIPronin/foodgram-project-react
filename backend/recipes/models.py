@@ -1,9 +1,6 @@
-# from django.contrib.auth import get_user_model
 from django.db import models
 
 from users.models import User
-# from backend.users.models import User
-# User = get_user_model()
 
 
 class Tag(models.Model):
@@ -19,7 +16,7 @@ class Tag(models.Model):
     )
     color = models.CharField(
         verbose_name='Цветовой HEX-код',
-        default='#49B64E',  # изначально выбран цвет, отображен в админке
+        default='#49B64E',  # изначально зеленый цвет, отображен в админке
         max_length=7,
         unique=True,
         blank=False
@@ -28,11 +25,10 @@ class Tag(models.Model):
         verbose_name='slug тега',
         unique=True,
         blank=False,
-    ) 
+    )
 
     def __str__(self):
         return self.name
-
 
 
 class Ingredient(models.Model):
@@ -44,10 +40,6 @@ class Ingredient(models.Model):
         verbose_name='Название ингредиента',
         max_length=40
     )
-    # в тех описании проекта этот пункт есть а в редоке нет.
-    amount = models.PositiveIntegerField(
-        verbose_name='Количество',
-    )
     measure_unit = models.CharField(
         verbose_name='Единица измерения',
         max_length=40
@@ -56,7 +48,7 @@ class Ingredient(models.Model):
     def __str__(self):
         return self.name
 
-   
+
 class Recipe(models.Model):
     """
     Модель рецепта.
@@ -66,17 +58,15 @@ class Recipe(models.Model):
         verbose_name='Автор публикации',
         on_delete=models.SET_NULL,
         related_name='recipes',
-        # blank=True,
         null=True
     )
     name = models.CharField(
-        verbose_name='Название',
+        verbose_name='Название рецепта',
         max_length=40
     )
     image = models.ImageField(
         verbose_name='Картинка',
         upload_to='recipes/',
-        # related_name='recipes',
         help_text='Загрузите сюда картинку вашего рецепта'
     )
     text = models.TextField(
@@ -85,6 +75,7 @@ class Recipe(models.Model):
     )
     ingredients = models.ManyToManyField(
         Ingredient,
+        through='RecipeIngredient',
         verbose_name='Ингредиенты',
         related_name='recipes'
     )
@@ -93,7 +84,7 @@ class Recipe(models.Model):
         verbose_name='Тег',
         related_name='recipes'
     )
-    cooking_time =models.PositiveSmallIntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления в минутах',
     )
     created_at = models.DateTimeField(
@@ -137,16 +128,15 @@ class Favorite(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name='Пользователь',
-        # related_name='favorites',
-        # blank=False
+        related_name='favorites',
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
-        # related_name='favorites',
-        # blank=False
+        related_name='favorites',
     )
+
 
 class ShoppingCart(models.Model):
     """
@@ -156,14 +146,11 @@ class ShoppingCart(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name='Пользователь',
-        # related_name='favorites',
-        # blank=False
+        related_name='shopping_cart',
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
-        # related_name='favorites',
-        # blank=False
+        related_name='shopping_cart',
     )
-    
