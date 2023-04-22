@@ -4,34 +4,25 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import (
-    IsAuthenticated,
-    IsAuthenticatedOrReadOnly)
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
-from recipes.models import (
-    Ingredient,
-    Favorite,
-    Recipe,
-    RecipeIngredient,
-    ShoppingCart,
-    Tag)
-from users.models import (
-    Subscriptions,
-    User)
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
+from users.models import Subscriptions, User
+
 from .pagination import CustomPagination
-from .serializers import (
-    IngredientSerializer,
-    FavoriteSerializer,
-    RecipeCreateSerializer,
-    RecipeReadSerializer,
-    ShoppingCartSerializer,
-    SubscriptionsSerializer,
-    TagSerializer,
-    CustomUserSerializer)
+from .serializers import (CustomUserSerializer, FavoriteSerializer,
+                          IngredientSerializer, RecipeCreateSerializer,
+                          RecipeReadSerializer, ShoppingCartSerializer,
+                          SubscriptionsSerializer, TagSerializer)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    """
+    Для отображения рецептов.
+    """
     queryset = Recipe.objects.all()
     pagination_class = CustomPagination
 
@@ -110,12 +101,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Для отображения Тэгов.
+    Если убрать pagination_class = None  Тэги пропадут с фронта.
+    """
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Для отображения ингридиентов.
+    """
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None

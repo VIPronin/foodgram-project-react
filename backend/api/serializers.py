@@ -1,17 +1,10 @@
-from rest_framework import serializers
-from drf_extra_fields.fields import Base64ImageField
-from recipes.models import (
-    Ingredient,
-    RecipeIngredient,
-    Favorite,
-    Recipe,
-    ShoppingCart,
-    Tag)
-from users.models import (
-    Subscriptions,
-    User)
-
 from djoser.serializers import UserSerializer
+from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
+
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
+from users.models import Subscriptions, User
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -22,12 +15,6 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = '__all__'
-        # fields = (
-        #     'id',
-        #     'name',
-        #     # 'amount',
-        #     'measure_unit'
-        # )
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -37,12 +24,6 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
-        # fields = (
-        #     'id',
-        #     'name',
-        #     'color',
-        #     'slug'
-        # )
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
@@ -53,56 +34,46 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = '__all__'
-        # fields = (
-        #     'user',
-        #     'recipe',
-        # )
 
 
 class ShoppingCartSerializer(serializers.ModelSerializer):
     """
     Сериализатор для карточки покупок.
     """
+
     class Meta:
         model = ShoppingCart
         fields = '__all__'
-        # fields = ('user', 'recipe')
 
 
 class CustomUserSerializer(UserSerializer):
     """
     Сериализатор для получения данных о пользователях.
+    и проверки подписан ли пользователь.
     """
+    is_subscribed = serializers.SerializerMethodField()
+
+    def get_is_subscribed(self, obj: User) -> bool:
+        """проверяет подписан ли автор на рецепт"""
+        user = self.context.get('request').user
+        return (
+            user.is_authenticated
+            and obj.following.filter(user=user).exists()
+        )
+
     class Meta:
         model = User
         fields = '__all__'
-        # fields = (
-        #     'email',
-        #     'id',
-        #     'username',
-        #     'first_name',
-        #     'last_name',
-        #     # 'is_subscribed',
-        # )
 
 
 class SubscriptionsSerializer(serializers.ModelSerializer):
     """
     Сериализатор для подписчиков.
     """
+
     class Meta:
         model = Subscriptions
         fields = '__all__'
-        # fields = (
-        #     'email',
-        #     'id',
-        #     'username',
-        #     'first_name',
-        #     'last_name',
-        #     # 'is_subscribed',
-        #     'recipes',
-        #     # 'recipes_count',
-        # )
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -137,18 +108,6 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = '__all__'
-        # fields = (
-        #     'id',
-        #     'name',
-        #     'author',
-        #     'ingredients',
-        #     'is_favorited',
-        #     'is_in_shopping_cart',
-        #     # 'name',
-        #     'image',
-        #     'text',
-        #     # 'cooking_time',
-        # )
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
@@ -169,12 +128,6 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecipeIngredient
         fields = '__all__'
-        # fields = (
-        #     'amount',
-        #     'name',
-        #     'measure_unit',
-        #     'id'
-        # )
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
@@ -231,30 +184,24 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             )
         return super().update(instance, validated_data)
 
-    def to_representation(self, obj):
+    def to_representation(self, instance):
         """Возвращаем прдеставление в таком же виде, как и GET-запрос."""
-        self.fields.pop('ingredients')
-        representation = super().to_representation(obj)
+        representation = {}
+
+        for field in self.fields:
+            value = field.get_attribute(instance)
+            representation[field.field_name] = field.to_representation(value)
+
+        ingredients = RecipeIngredient.objects.filter(recipe=instance)
         representation['ingredients'] = RecipeIngredientSerializer(
-            RecipeIngredient.objects.filter(recipe=obj).all(), many=True
+            ingredients, many=True
         ).data
+
         return representation
 
     class Meta:
         model = Recipe
         fields = '__all__'
-        # fields = (
-        #     'id',
-        #     'tags',
-        #     'author',
-        #     'ingredients',
-        #     # 'is_favorited',
-        #     # 'is_in_shopping_cart',
-        #     'name',
-        #     'image',
-        #     'text',
-        #     'cooking_time',
-        # )
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
@@ -275,9 +222,3 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecipeIngredient
         fields = '__all__'
-        # fields = (
-        #     'amount',
-        #     'name',
-        #     'measure_unit',
-        #     'id'
-        # )
