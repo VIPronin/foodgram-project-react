@@ -85,12 +85,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ingrs = RecipeIngredient.objects.filter(
             recipe__shopping_cart__user=user
         ).values(
-            'ingredient__name', 'ingredient__measure_unit'
+            'ingredient__name', 'ingredient__measurement_unit'
         ).annotate(sum_amount=Sum('amount'))
         text_list = ['Список необходимых ингредиентов:\n']
         text_list += [
             f'{i.get("ingredient__name").capitalize()} '
-            f'({i.get("ingredient__measure_unit")}) - '
+            f'({i.get("ingredient__measurement_unit")}) - '
             f'{i.get("sum_amount")}\n' for i in list(ingrs)
         ]
         response = HttpResponse(text_list, content_type='text/plain')
