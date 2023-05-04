@@ -12,6 +12,7 @@ from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
 from users.models import Subscriptions, User
 
+from .filters import IngredientFilter
 from .pagination import CustomPagination
 from .serializers import (CustomUserSerializer, FavoriteSerializer,
                           IngredientSerializer, RecipeCreateSerializer,
@@ -117,6 +118,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
+    filterset_class = IngredientFilter
 
 
 class UsersViewSet(viewsets.ModelViewSet):
