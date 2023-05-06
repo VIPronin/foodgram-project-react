@@ -142,7 +142,9 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         queryset=Tag.objects.all(),
         many=True
     )
-    ingredients = RecipeIngredientSerializer()
+    ingredients = serializers.ListField(
+        child=RecipeIngredientSerializer()
+    )
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
