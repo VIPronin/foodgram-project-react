@@ -135,7 +135,6 @@ class UsersViewSet(viewsets.ModelViewSet):
     serializer_class = CustomUserSerializer
     pagination_class = CustomPagination
     permission_classes = (IsAuthenticatedOrReadOnly, )
-    lookup_field = 'id'
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
     http_method_names = ['post', 'patch', 'get', 'delete']
