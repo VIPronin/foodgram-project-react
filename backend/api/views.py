@@ -1,6 +1,7 @@
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
@@ -26,6 +27,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """
     queryset = Recipe.objects.all()
     pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend]
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PATCH'):
@@ -120,6 +122,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
+    filter_backends = [DjangoFilterBackend]
     filterset_class = IngredientFilter
     search_fields = ('^name')
 

@@ -66,17 +66,6 @@ class CustomUserSerializer(UserSerializer):
         fields = '__all__'
 
 
-class SubscriptionsSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для подписчиков.
-    """
-
-    class Meta:
-        model = Subscriptions
-        fields = '__all__'
-
-
-# class ReadIngredientRecipeSerializer(serializers.ModelSerializer):
 class ReadIngredientRecipeSerializer(serializers.ModelSerializer):
     """
     Сериализатор рецпептов и ингридиентов на чтение.
@@ -134,11 +123,6 @@ class RecipeReadSerializer(serializers.ModelSerializer):
                     user=current_user, recipe=obj.id).exists()
             return False
 
-    # class Meta:
-    #     model = Recipe
-    #     fields = '__all__'
-    #     read_only_fields = '__all__'
-
     class Meta:
         model = Recipe
         fields = '__all__'
@@ -172,7 +156,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     )
     ingredients = CreateIngredientRecipeSerializer(
         many=True,
-        # write_only=True,
     )
 
     @staticmethod
@@ -220,3 +203,18 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'name', 'image', 'cooking_time')
         model = Recipe
+
+
+class SubscriptionsSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для подписчиков.
+    """
+    subscribe = CustomUserSerializer()
+    recipes = ShortRecipeSerializer(
+        many=True,
+        read_only=True
+    )
+
+    class Meta:
+        model = Subscriptions
+        fields = ('subscribe', 'recipes')
