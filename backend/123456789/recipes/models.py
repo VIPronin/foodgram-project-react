@@ -27,6 +27,10 @@ class Tag(models.Model):
         # blank=False,
     )
 
+    class Meta:
+        verbose_name = "Тег"
+        verbose_name_plural = "Теги"
+
     def __str__(self):
         return self.name
 
@@ -44,6 +48,10 @@ class Ingredient(models.Model):
         verbose_name='Единица измерения',
         max_length=40
     )
+
+    class Meta:
+        verbose_name = "Ингредиент"
+        verbose_name_plural = "Ингредиенты"
 
     def __str__(self):
         return self.name
@@ -75,9 +83,9 @@ class Recipe(models.Model):
     )
     ingredients = models.ManyToManyField(
         Ingredient,
-        through='IngredientRecipe',
-        through_fields=('recipe_id', 'ingredient_id'),
-        verbose_name='Ингредиенты'
+        # through='IngredientRecipe',
+        verbose_name='Ингредиенты',
+        related_name='recipe_ingredients'
     )
     tags = models.ManyToManyField(
         Tag,
@@ -87,12 +95,10 @@ class Recipe(models.Model):
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления в минутах',
     )
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
-    updateed_at = models.DateTimeField(
-        auto_now=True
-    )
+
+    class Meta:
+        verbose_name = "Рецепт"
+        verbose_name_plural = "Рецепты"
 
     def __str__(self):
         return self.name
@@ -118,8 +124,12 @@ class IngredientRecipe(models.Model):
         related_name='recipe_ingredients',
     )
 
+    class Meta:
+        verbose_name = "ингридиента рецепта"
+        verbose_name_plural = "ингридиенты рецептов"
+
     def __str__(self):
-        return f'{self.ingredient} : {self.amount}'
+        return f'{self.ingredient} - {self.amount}'
 
 
 class Favorite(models.Model):
@@ -139,6 +149,13 @@ class Favorite(models.Model):
         related_name='favorites',
     )
 
+    class Meta:
+        verbose_name = "Избранный рецепт"
+        verbose_name_plural = "Избранные рецепты"
+
+    def __str__(self):
+        return self.user.username
+
 
 class ShoppingCart(models.Model):
     """
@@ -156,3 +173,10 @@ class ShoppingCart(models.Model):
         verbose_name='Рецепт',
         related_name='shopping_cart',
     )
+
+    class Meta:
+        verbose_name = "Список покупок"
+        verbose_name_plural = "Список покупок"
+
+    def __str__(self):
+        return self.user.username

@@ -8,13 +8,13 @@ from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+from recipes.models import (Favorite, Ingredient, Recipe, IngredientRecipe,
                             ShoppingCart, Tag)
 from users.models import Subscriptions, User
 
 from .filters import IngredientFilter
 from .pagination import CustomPagination
-from .serializers import (CustomUserSerializer, FavoriteSerializer,
+from .serializers import (CustomUserSerializer, ShortRecipeSerializer,
                           IngredientSerializer, RecipeCreateSerializer,
                           RecipeReadSerializer, ShoppingCartSerializer,
                           SubscriptionsSerializer, TagSerializer)
@@ -28,32 +28,36 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return RecipeReadSerializer
-        return RecipeCreateSerializer
+        if self.request.method in ('POST', 'PATCH'):
+            return RecipeCreateSerializer
+        return RecipeReadSerializer
 
-    @action(detail=True, methods=['post'],
-            permission_classes=[IsAuthenticated])
-    def favorite(self, request, pk):
-        context = {'request': request}
-        recipe = get_object_or_404(Recipe, id=pk)
-        fav_data = {
-            'user': request.user.id,
-            'recipe': recipe.id
-        }
-        serializer = FavoriteSerializer(data=fav_data, context=context)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    def add_to(self, model, user, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        obj, created = model.objects.get_or_create(user=user, recipe=recipe)
+        if created:
+            serializer = ShortRecipeSerializer(recipe)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(status=status.HTTP_304_NOT_MODIFIED)
 
-    @favorite.mapping.delete
-    def del_from_favorite(self, request, pk):
-        get_object_or_404(
-            Favorite,
-            user=request.user,
-            recipe=get_object_or_404(Recipe, id=pk)
-        ).delete()
+    def delete_from(self, model, user, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        obj = get_object_or_404(model, user=user, recipe=recipe)
+        obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        detail=True,
+        methods=('POST', 'DELETE'),
+        url_path='favorite',
+        permission_classes=[IsAuthenticated]
+    )
+    def favorite(self, request, pk):
+        if request.method == 'POST':
+            return self.add_to(Favorite, request.user, pk)
+        elif request.method == 'DELETE':
+            return self.delete_from(Favorite, request.user, pk)
 
     @action(detail=True, methods=['post'],
             permission_classes=[IsAuthenticated])
@@ -83,7 +87,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
         filename = f'{user.username}_shopping_list.txt'
         # recipes_in_cart = user.shopping_cart.all()
-        ingrs = RecipeIngredient.objects.filter(
+        ingrs = IngredientRecipe.objects.filter(
             recipe__shopping_cart__user=user
         ).values(
             'ingredient__name', 'ingredient__measurement_unit'

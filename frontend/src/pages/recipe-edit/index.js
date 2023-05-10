@@ -17,7 +17,7 @@ const RecipeEdit = ({ onItemDelete }) => {
     measurement_unit: ''
   })
 
-  const [ recipeIngredients, setRecipeIngredients ] = useState([])
+  const [ IngredientRecipes, setIngredientRecipes ] = useState([])
   const [ recipeText, setRecipeText ] = useState('')
   const [ recipeTime, setRecipeTime ] = useState(0)
   const [ recipeFile, setRecipeFile ] = useState(null)
@@ -67,7 +67,7 @@ const RecipeEdit = ({ onItemDelete }) => {
       setRecipeName(name)
       setRecipeTime(cooking_time)
       setRecipeFile(image)
-      setRecipeIngredients(ingredients)
+      setIngredientRecipes(ingredients)
 
 
       const tagsValueUpdated = value.map(item => {
@@ -94,7 +94,7 @@ const RecipeEdit = ({ onItemDelete }) => {
   const checkIfDisabled = () => {
     return recipeText === '' ||
     recipeName === '' ||
-    recipeIngredients.length === 0 ||
+    IngredientRecipes.length === 0 ||
     value.filter(item => item.value).length === 0 ||
     recipeTime === '' ||
     recipeFile === '' ||
@@ -116,7 +116,7 @@ const RecipeEdit = ({ onItemDelete }) => {
           const data = {
             text: recipeText,
             name: recipeName,
-            ingredients: recipeIngredients.map(item => ({
+            ingredients: IngredientRecipes.map(item => ({
               id: item.id,
               amount: item.amount
             })),
@@ -213,17 +213,17 @@ const RecipeEdit = ({ onItemDelete }) => {
             />}
           </div>
           <div className={styles.ingredientsAdded}>
-            {recipeIngredients.map(item => {
+            {IngredientRecipes.map(item => {
               return <div
                 className={styles.ingredientsAddedItem}
               >
                 <span className={styles.ingredientsAddedItemTitle}>{item.name}</span> <span> </span> <span>{item.amount}{item.measurement_unit}</span> <span
                   className={styles.ingredientsAddedItemRemove}
                   onClick={_ => {
-                    const recipeIngredientsUpdated = recipeIngredients.filter(ingredient => {
+                    const IngredientRecipesUpdated = IngredientRecipes.filter(ingredient => {
                       return ingredient.id !== item.id
                     })
-                    setRecipeIngredients(recipeIngredientsUpdated)
+                    setIngredientRecipes(IngredientRecipesUpdated)
                   }}
                 >Удалить</span>
               </div>
@@ -233,7 +233,7 @@ const RecipeEdit = ({ onItemDelete }) => {
             className={styles.ingredientAdd}
             onClick={_ => {
               if (ingredientValue.amount === '' || ingredientValue.name === '') { return }
-              setRecipeIngredients([...recipeIngredients, ingredientValue])
+              setIngredientRecipes([...IngredientRecipes, ingredientValue])
               setIngredientValue({
                 name: '',
                 id: null,
