@@ -1,16 +1,16 @@
-version: '3.3'
+version: '3.8'
 # version: '3.8' в учебном проекте
 services:
 
   db:
     image: postgres:13.0-alpine
-    environment:
-      # POSTGRES_DB: "db"
-      POSTGRES_HOST_AUTH_METHOD: "trust"
+    # environment:
+    #   # POSTGRES_DB: "db"
+    #   POSTGRES_HOST_AUTH_METHOD: "trust"
     volumes:
       - db_value:/var/lib/postgresql/data/
     env_file:
-      - ./.env
+      - .env
 
   backend:
     # build:
@@ -24,7 +24,7 @@ services:
     depends_on:
       - db
     env_file:
-      - ./.env
+      - .env
 
   frontend:
     image: vladislavpronin/foodgram_frontend:latest
@@ -34,7 +34,7 @@ services:
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
-      - backend
+      - db
 
   nginx:
     image: nginx:1.21.3-alpine

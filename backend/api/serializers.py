@@ -105,11 +105,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     Сериализатор рецпептов на чтение.
     """
     author = CustomUserSerializer(read_only=True)
-    ingredients = ReadIngredientRecipeSerializer(
-        source='recipe_ingredients',
-        many=True,
-        read_only=True,
-    )
+    ingredients = serializers.SerializerMethodField()
     tags = TagSerializer(many=True, read_only=True)
     is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
