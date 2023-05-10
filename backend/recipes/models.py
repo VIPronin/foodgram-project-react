@@ -103,7 +103,7 @@ class IngredientRecipe(models.Model):
     Связующая таблица рецепта и ингридиента.
     """
     amount = models.PositiveIntegerField(
-        verbose_name='Колличество',
+        verbose_name='Количество',
     )
     recipe = models.ForeignKey(
         Recipe,
