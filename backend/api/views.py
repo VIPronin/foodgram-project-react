@@ -38,8 +38,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if created:
             serializer = ShortRecipeSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(status=status.HTTP_304_NOT_MODIFIED)
+        return Response(status=status.HTTP_304_NOT_MODIFIED)
 
     def delete_from(self, model, user, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
@@ -56,7 +55,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def favorite(self, request, pk):
         if request.method == 'POST':
             return self.add_to(Favorite, request.user, pk)
-        elif request.method == 'DELETE':
+        else:
             return self.delete_from(Favorite, request.user, pk)
 
     @action(detail=True, methods=['post'],
