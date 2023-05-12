@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from recipes.models import (Favorite, Ingredient, Recipe, IngredientRecipe,
                             ShoppingCart, Tag)
-from users.models import Subscriptions, User
+from users.models import User
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -209,35 +209,29 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
     """
     Сериализатор для подписчиков.
     """
-    subscribe = CustomUserSerializer()
-    recipes = ShortRecipeSerializer(
-        many=True,
-        read_only=True,
-        source='subscribe.recipe_author')
+    recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
-    def validate(self, data):
-        if self.context['request'].user == data['subscribe']:
-            raise serializers.ValidationError(
-                'Нельзя подписаться на самого себя!')
-        return data
+    class Meta:
+        model = User
+        fields = (
+            'email', 'id', 'username', 'first_name',
+            'last_name', 'is_subscribed', 'recipes', 'recipes_count'
+        )
+
+    def get_recipes(self, obj):
+        recipes_limit = (
+            self.context['request'].query_params.get('recipes_limit')
+        )
+        recipes = obj.recipes.all()
+        if recipes_limit is not None:
+            recipes_limit = int(recipes_limit)
+            serializer = ShortRecipeSerializer(
+                recipes[:recipes_limit], many=True
+            )
+        else:
+            serializer = ShortRecipeSerializer(recipes, many=True)
+        return serializer.data
 
     def get_recipes_count(self, obj):
-        return obj.subscribe.recipe_author.count()
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        return {
-            'email': representation['subscribe']['email'],
-            'id': representation['subscribe']['id'],
-            'username': representation['subscribe']['username'],
-            'first_name': representation['subscribe']['first_name'],
-            'last_name': representation['subscribe']['last_name'],
-            'is_subscribed': representation['subscribe']['is_subscribed'],
-            'recipes': representation['recipes'],
-            'recipes_count': representation['recipes_count'],
-        }
-
-    class Meta:
-        fields = ('subscribe', 'recipes', 'recipes_count')
-        model = Subscriptions
+        return obj.recipes.count()

@@ -171,3 +171,30 @@ class UsersViewSet(viewsets.ModelViewSet):
                 return Response({
                     'message': 'Вы отписались от этого автора'},
                     status=status.HTTP_204_NO_CONTENT)
+
+
+class FollowViewSet(viewsets.ViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+
+    def create(self, request, user_id):
+        follow_author = get_object_or_404(User, pk=user_id)
+        if follow_author != request.user and (
+            not request.user.follower.filter(author=follow_author).exists()
+        ):
+            Subscriptions.objects.create(
+                user=request.user,
+                author=follow_author
+            )
+            serializer = SubscriptionsSerializer(
+                follow_author, context={'request': request}
+            )
+            return Response(serializer.data, status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, user_id):
+        follow_author = get_object_or_404(User, pk=user_id)
+        data_follow = request.user.follower.filter(author=follow_author)
+        if data_follow.exists():
+            data_follow.delete()
+            return Response(status.HTTP_204_NO_CONTENT)
+        return Response(status.HTTP_400_BAD_REQUEST)
