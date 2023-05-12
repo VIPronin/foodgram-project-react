@@ -137,53 +137,37 @@ class UsersViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly, )
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
-    http_method_names = ['post', 'patch', 'get', 'delete']
 
-    @action(detail=False, methods=['get', 'patch'],
-            permission_classes=[IsAuthenticated])
-    def me(self, request):
-        if request.method != 'GET':
-            serializer = self.get_serializer(
-                instance=request.user, data=request.data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save(role=serializer.instance.role)
-            return Response(serializer.data)
-        serializer = self.get_serializer(request.user, many=False)
-        return Response(serializer.data)
-
-    @action(detail=True, methods=['post', 'delete'],
-            permission_classes=[IsAuthenticated])
-    def subscribe(self, request, pk):
-        author = get_object_or_404(User, pk=pk)
-        follow_data = {
-            'user': request.user.id,
-            'author': author.id
-        }
-        if request.method == 'POST':
-            serializer = SubscriptionsSerializer(
-                author,
-                data=follow_data,
-                context={'request': request}
-            )
-            serializer.is_valid(raise_exception=True)
-            user = serializer.validated_data.get('user')
-            author = serializer.validated_data.get('author')
-            Subscriptions.objects.create(user=user, author=author)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        if request.method == 'DELETE':
-            get_object_or_404(
-                Subscriptions,
-                user=request.user,
-                author=author
-            ).delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(detail=False, methods=['get'],
-            permission_classes=[IsAuthenticated])
-    def subscriptions(self, request):
-        following = request.user.following.all()
-        pages = self.paginate_queryset(following)
-        serializer = SubscriptionsSerializer(
-            pages, many=True, context={'request': request}
-        )
+    @action(methods=('GET', ),
+            url_path='subscriptions', detail=False,
+            permission_classes=(IsAuthenticated,))
+    def read_subscribe(self, request):
+        user = request.user
+        subscriptions = Subscriptions.objects.filter(user=user)
+        page = self.paginate_queryset(subscriptions)
+        serializer = SubscriptionsSerializer(page, many=True,
+                                             context={'request': request})
         return self.get_paginated_response(serializer.data)
+
+    @action(methods=('POST', 'DELETE'),
+            url_path='subscribe', detail=True,
+            permission_classes=(IsAuthenticated,))
+    def subscribe(self, request, id=None):
+        user = request.user
+        subscribe = get_object_or_404(User, id=id)
+        if request.method == 'POST':
+            subscription = Subscriptions.objects.create(
+                user=user, subscribe=subscribe)
+            serializer = SubscriptionsSerializer(
+                subscription,
+                context={'request': request},
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        elif request.method == 'DELETE':
+            subscribe = self.get_object()
+            deleted = Subscriptions.objects.get(
+                user=user, subscribe=subscribe).delete()
+            if deleted:
+                return Response({
+                    'message': 'Вы отписались от этого автора'},
+                    status=status.HTTP_204_NO_CONTENT)

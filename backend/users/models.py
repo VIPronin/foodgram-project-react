@@ -58,5 +58,9 @@ class Subscriptions(models.Model):
         related_name='following'
     )
 
+    class Meta:
+        verbose_name = 'Подписчик'
+        verbose_name_plural = 'Подписчики'
+
     def __str__(self):
         return f'Пользователь: {self.user} подписан на {self.following}'
