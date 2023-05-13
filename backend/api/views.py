@@ -156,19 +156,19 @@ class UsersViewSet(viewsets.ModelViewSet):
             permission_classes=(IsAuthenticated,))
     def subscribe(self, request, pk):
         user = request.user
-        subscribe = get_object_or_404(User, pk=pk)
+        following = get_object_or_404(User, pk=pk)
         if request.method == 'POST':
             subscription = Subscriptions.objects.create(
-                user=user, subscribe=subscribe)
+                user=user, following=following)
             serializer = SubscriptionsSerializer(
                 subscription,
                 context={'request': request},
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         elif request.method == 'DELETE':
-            subscribe = self.get_object()
+            following = self.get_object()
             deleted = Subscriptions.objects.get(
-                user=user, subscribe=subscribe).delete()
+                user=user, following=following).delete()
             if deleted:
                 return Response({
                     'message': 'Вы отписались от этого автора'},
