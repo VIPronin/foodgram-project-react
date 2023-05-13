@@ -166,6 +166,30 @@ class SuSubscriptionCreateDeleteAPIView(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly, )
     serializer_class = SubscriptionsSerializer
 
+    @action(methods=('POST', 'DELETE'),
+            url_path='subscribe', detail=True,
+            permission_classes=(IsAuthenticated,))
+    def subscribe_post(self, request, pk):
+        user = request.user
+        following = get_object_or_404(User, pk=pk)
+        subscription = Subscriptions.objects.create(
+            user=user, following=following)
+        serializer = SubscriptionsSerializer(
+            subscription,
+            context={'request': request},
+        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def subscribe_del(self, request, pk):
+        user = request.user
+        following = get_object_or_404(User, pk=pk)
+        deleted = Subscriptions.objects.get(
+            user=user, following=following).delete()
+        if deleted:
+            return Response({
+                'message': 'Вы отписались от этого автора'},
+                status=status.HTTP_204_NO_CONTENT)
+
     # @action(methods=('POST', 'DELETE'),
     #         url_path='subscribe', detail=True,
     #         permission_classes=(IsAuthenticated,))
@@ -189,26 +213,26 @@ class SuSubscriptionCreateDeleteAPIView(APIView):
     #                 'message': 'Вы отписались от этого автора'},
     #                 status=status.HTTP_204_NO_CONTENT)
 
-    def post(self, request, id):
-        data = {'user': request.user.id, 'author': id}
-        print(data)
-        serializer = SubscriptionsSerializer(
-            data=data,
-            context={'request': request}
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data,
-                        status=status.HTTP_201_CREATED)
+    # def post(self, request, id):
+    #     data = {'user': request.user.id, 'author': id}
+    #     print(data)
+    #     serializer = SubscriptionsSerializer(
+    #         data=data,
+    #         context={'request': request}
+    #     )
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #     return Response(serializer.data,
+    #                     status=status.HTTP_201_CREATED)
 
-    def delete(self, request, id) -> None:
-        user = request.user
-        author = get_object_or_404(User, id=id)
-        subscription = get_object_or_404(
-            Subscriptions, user=user, author=author)
-        if subscription:
-            subscription.delete()
-            return Response('Вы отписались от автора.',
-                            status=status.HTTP_204_NO_CONTENT)
-        return Response('Вы не подписаны на пользователя',
-                        status=status.HTTP_400_BAD_REQUEST)
+    # def delete(self, request, id) -> None:
+    #     user = request.user
+    #     author = get_object_or_404(User, id=id)
+    #     subscription = get_object_or_404(
+    #         Subscriptions, user=user, author=author)
+    #     if subscription:
+    #         subscription.delete()
+    #         return Response('Вы отписались от автора.',
+    #                         status=status.HTTP_204_NO_CONTENT)
+    #     return Response('Вы не подписаны на пользователя',
+    #                     status=status.HTTP_400_BAD_REQUEST)
