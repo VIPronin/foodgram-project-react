@@ -189,7 +189,7 @@ class SuSubscriptionCreateDeleteAPIView(APIView):
     #                 'message': 'Вы отписались от этого автора'},
     #                 status=status.HTTP_204_NO_CONTENT)
 
-    def post(self, request, pk):
+    def post(self, request, id):
         data = {'user': request.user.id, 'author': id}
         print(data)
         serializer = SubscriptionsSerializer(
