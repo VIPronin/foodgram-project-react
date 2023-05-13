@@ -13,6 +13,7 @@ from recipes.models import (Favorite, Ingredient, Recipe, IngredientRecipe,
                             ShoppingCart, Tag)
 from users.models import Subscriptions, User
 
+from .mixins import ListViewSet
 from .filters import IngredientFilter
 from .pagination import CustomPagination
 from .permissions import IsAuthorOnly
@@ -174,7 +175,7 @@ class UsersViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_204_NO_CONTENT)
 
 
-class SubscriptionsViewSet(viewsets.ListViewSet):
+class SubscriptionsViewSet(ListViewSet):
     queryset = Subscriptions.objects.all()
     serializer_class = SubscriptionsSerializer
     permission_classes = (IsAuthorOnly, )
