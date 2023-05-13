@@ -154,9 +154,9 @@ class UsersViewSet(viewsets.ModelViewSet):
     @action(methods=('POST', 'DELETE'),
             url_path='subscribe', detail=True,
             permission_classes=(IsAuthenticated,))
-    def subscribe(self, request, id=None):
+    def subscribe(self, request, pk):
         user = request.user
-        subscribe = get_object_or_404(User, id=id)
+        subscribe = get_object_or_404(User, pk=pk)
         if request.method == 'POST':
             subscription = Subscriptions.objects.create(
                 user=user, subscribe=subscribe)
