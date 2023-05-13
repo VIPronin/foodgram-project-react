@@ -220,7 +220,7 @@ class SubscriptionsListSerializer(serializers.ModelSerializer):
         )
 
 
-class SubscriptionSerializer(serializers.ModelSerializer):
+class SubscriptionsSerializer(serializers.ModelSerializer):
     """
     Сериализатор для подписчиков.
     """

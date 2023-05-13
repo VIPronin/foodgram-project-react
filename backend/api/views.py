@@ -6,8 +6,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly,
-                                        IsAuthorOnly)
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
 from recipes.models import (Favorite, Ingredient, Recipe, IngredientRecipe,
@@ -16,6 +15,7 @@ from users.models import Subscriptions, User
 
 from .filters import IngredientFilter
 from .pagination import CustomPagination
+from .permissions import IsAuthorOnly
 from .serializers import (CustomUserSerializer, ShortRecipeSerializer,
                           IngredientSerializer, RecipeCreateSerializer,
                           RecipeReadSerializer, ShoppingCartSerializer,
