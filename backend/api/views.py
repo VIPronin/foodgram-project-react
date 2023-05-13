@@ -6,7 +6,8 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
+                                        IsAuthenticatedOrReadOnly,
+                                        IsAuthorOnly)
 from rest_framework.response import Response
 
 from recipes.models import (Favorite, Ingredient, Recipe, IngredientRecipe,
@@ -173,28 +174,39 @@ class UsersViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_204_NO_CONTENT)
 
 
-class FollowViewSet(viewsets.ViewSet):
+class SubscriptionsViewSet(viewsets.ListViewSet):
+    queryset = Subscriptions.objects.all()
+    serializer_class = SubscriptionsSerializer
+    permission_classes = (IsAuthorOnly, )
+
+    def get_queryset(self):
+        return Subscriptions.objects.filter(user=self.request.user)
+
+
+class SubscriptionsViewSet(viewsets.ViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly, )
+    serializer_class = SubscriptionsSerializer
 
-    def create(self, request, user_id):
-        follow_author = get_object_or_404(User, pk=user_id)
-        if follow_author != request.user and (
-            not request.user.follower.filter(author=follow_author).exists()
-        ):
-            Subscriptions.objects.create(
-                user=request.user,
-                author=follow_author
-            )
-            serializer = SubscriptionsSerializer(
-                follow_author, context={'request': request}
-            )
-            return Response(serializer.data, status.HTTP_201_CREATED)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, id):
+        data = {'user': request.user.id, 'author': id}
+        print(data)
+        serializer = SubscriptionsSerializer(
+            data=data,
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data,
+                        status=status.HTTP_201_CREATED)
 
-    def destroy(self, request, user_id):
-        follow_author = get_object_or_404(User, pk=user_id)
-        data_follow = request.user.follower.filter(author=follow_author)
-        if data_follow.exists():
-            data_follow.delete()
-            return Response(status.HTTP_204_NO_CONTENT)
-        return Response(status.HTTP_400_BAD_REQUEST)
+    def delete(self, request, id) -> None:
+        user = request.user
+        author = get_object_or_404(User, id=id)
+        subscription = get_object_or_404(
+            Subscriptions, user=user, author=author)
+        if subscription:
+            subscription.delete()
+            return Response('Вы отписались от автора.',
+                            status=status.HTTP_204_NO_CONTENT)
+        return Response('Вы не подписаны на пользователя',
+                        status=status.HTTP_400_BAD_REQUEST)

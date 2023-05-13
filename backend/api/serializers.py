@@ -1,10 +1,10 @@
 from djoser.serializers import UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework import serializers
+from rest_framework import serializers, status
 
 from recipes.models import (Favorite, Ingredient, Recipe, IngredientRecipe,
                             ShoppingCart, Tag)
-from users.models import User
+from users.models import User, Subscriptions
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -205,7 +205,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
         model = Recipe
 
 
-class SubscriptionsSerializer(serializers.ModelSerializer):
+class SubscriptionsListSerializer(serializers.ModelSerializer):
     """
     Сериализатор для подписчиков.
     """
@@ -219,19 +219,49 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
             'last_name', 'is_subscribed', 'recipes', 'recipes_count'
         )
 
-    def get_recipes(self, obj):
-        recipes_limit = (
-            self.context['request'].query_params.get('recipes_limit')
-        )
-        recipes = obj.recipes.all()
-        if recipes_limit is not None:
-            recipes_limit = int(recipes_limit)
-            serializer = ShortRecipeSerializer(
-                recipes[:recipes_limit], many=True
-            )
-        else:
-            serializer = ShortRecipeSerializer(recipes, many=True)
-        return serializer.data
 
-    def get_recipes_count(self, obj):
-        return obj.recipes.count()
+class SubscriptionSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для подписчиков.
+    """
+
+    def validate(self, data) -> bool:
+        """
+        Проверка подписки
+        """
+        user = self.context.get('request').user
+        subscription_id = data.get('id')
+        user_id = data.get('user_id')
+        author_id = data.get('author_id')
+        subscription = Subscriptions.objects.filter(id=subscription_id,
+                                                    user=user_id,
+                                                    author=author_id).exists()
+        if subscription:
+            raise serializers.ValidationError(
+                code=status.HTTP_400_BAD_REQUEST
+            )
+        if author_id == user.id:
+            raise serializers.ValidationError(
+                code=status.HTTP_400_BAD_REQUEST
+            )
+        return data
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
+        return SubscriptionsListSerializer(
+            instance.author, context=context).data
+
+    class Meta:
+        model = Subscriptions
+        fields = ('user', 'author')
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для избранного.
+    """
+
+    class Meta:
+        model = Favorite
+        fields = ('user', 'recipe')
