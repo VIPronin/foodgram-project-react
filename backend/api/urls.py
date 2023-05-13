@@ -3,7 +3,7 @@ from django.views.generic import TemplateView
 from rest_framework.routers import DefaultRouter
 
 from .views import (IngredientViewSet, RecipeViewSet,
-                    SuSubscriptionCreateDeleteAPIView, 
+                    SuSubscriptionCreateDeleteAPIView,
                     SubscriptionsViewSet, TagViewSet, UsersViewSet)
 
 router_v1 = DefaultRouter()
