@@ -8,6 +8,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from recipes.models import (Favorite, Ingredient, Recipe, IngredientRecipe,
                             ShoppingCart, Tag)
@@ -151,6 +152,20 @@ class UsersViewSet(viewsets.ModelViewSet):
                                              context={'request': request})
         return self.get_paginated_response(serializer.data)
 
+
+class SubscriptionsViewSet(ListViewSet):
+    queryset = Subscriptions.objects.all()
+    serializer_class = SubscriptionsSerializer
+    permission_classes = (IsAuthorOnly, )
+
+    def get_queryset(self):
+        return Subscriptions.objects.filter(user=self.request.user)
+
+
+class SuSubscriptionCreateDeleteAPIView(APIView):
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+    serializer_class = SubscriptionsSerializer
+
     @action(methods=('POST', 'DELETE'),
             url_path='subscribe', detail=True,
             permission_classes=(IsAuthenticated,))
@@ -174,40 +189,26 @@ class UsersViewSet(viewsets.ModelViewSet):
                     'message': 'Вы отписались от этого автора'},
                     status=status.HTTP_204_NO_CONTENT)
 
+    # def post(self, request, id):
+    #     data = {'user': request.user.id, 'author': id}
+    #     print(data)
+    #     serializer = SubscriptionsSerializer(
+    #         data=data,
+    #         context={'request': request}
+    #     )
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #     return Response(serializer.data,
+    #                     status=status.HTTP_201_CREATED)
 
-class SubscriptionsViewSet(ListViewSet):
-    queryset = Subscriptions.objects.all()
-    serializer_class = SubscriptionsSerializer
-    permission_classes = (IsAuthorOnly, )
-
-    def get_queryset(self):
-        return Subscriptions.objects.filter(user=self.request.user)
-
-
-class SubscriptionsViewSet(viewsets.ViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly, )
-    serializer_class = SubscriptionsSerializer
-
-    def post(self, request, id):
-        data = {'user': request.user.id, 'author': id}
-        print(data)
-        serializer = SubscriptionsSerializer(
-            data=data,
-            context={'request': request}
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data,
-                        status=status.HTTP_201_CREATED)
-
-    def delete(self, request, id) -> None:
-        user = request.user
-        author = get_object_or_404(User, id=id)
-        subscription = get_object_or_404(
-            Subscriptions, user=user, author=author)
-        if subscription:
-            subscription.delete()
-            return Response('Вы отписались от автора.',
-                            status=status.HTTP_204_NO_CONTENT)
-        return Response('Вы не подписаны на пользователя',
-                        status=status.HTTP_400_BAD_REQUEST)
+    # def delete(self, request, id) -> None:
+    #     user = request.user
+    #     author = get_object_or_404(User, id=id)
+    #     subscription = get_object_or_404(
+    #         Subscriptions, user=user, author=author)
+    #     if subscription:
+    #         subscription.delete()
+    #         return Response('Вы отписались от автора.',
+    #                         status=status.HTTP_204_NO_CONTENT)
+    #     return Response('Вы не подписаны на пользователя',
+    #                     status=status.HTTP_400_BAD_REQUEST)
