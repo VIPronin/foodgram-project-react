@@ -20,7 +20,7 @@ urlpatterns = [
         name='docs'
     ),
     path(
-        'users/<int:id>/subscribe/',
+        'users/<int:pk>/subscribe/',
         SuSubscriptionCreateDeleteAPIView.as_view(),
         name='subscribe'),
     path(
