@@ -171,7 +171,7 @@ class SuSubscriptionCreateDeleteAPIView(APIView):
     #         permission_classes=(IsAuthenticated,))
     def subscribe_post(self, request, id):
         user = request.user
-        following = get_object_or_404(User, pk=id)
+        following = get_object_or_404(User, id=id)
         subscription = Subscriptions.objects.create(
             user=user, following=following)
         serializer = SubscriptionsSerializer(
@@ -182,7 +182,7 @@ class SuSubscriptionCreateDeleteAPIView(APIView):
 
     def subscribe_del(self, request, id):
         user = request.user
-        following = get_object_or_404(User, pk=id)
+        following = get_object_or_404(User, id=id)
         deleted = Subscriptions.objects.get(
             user=user, following=following).delete()
         if deleted:
