@@ -225,26 +225,26 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
     Сериализатор для подписчиков.
     """
 
-    def validate(self, data) -> bool:
-        """
-        Проверка подписки
-        """
-        user = self.context.get('request').user
-        subscription_id = data.get('id')
-        user_id = data.get('user_id')
-        author_id = data.get('author_id')
-        subscription = Subscriptions.objects.filter(id=subscription_id,
-                                                    user=user_id,
-                                                    author=author_id).exists()
-        if subscription:
-            raise serializers.ValidationError(
-                code=status.HTTP_400_BAD_REQUEST
-            )
-        if author_id == user.id:
-            raise serializers.ValidationError(
-                code=status.HTTP_400_BAD_REQUEST
-            )
-        return data
+    # def validate(self, data) -> bool:
+    #     """
+    #     Проверка подписки
+    #     """
+    #     user = self.context.get('request').user
+    #     subscription_id = data.get('id')
+    #     user_id = data.get('user_id')
+    #     author_id = data.get('author_id')
+    #     subscription = Subscriptions.objects.filter(id=subscription_id,
+    #                                                 user=user_id,
+    #                                                 author=author_id).exists()
+    #     if subscription:
+    #         raise serializers.ValidationError(
+    #             code=status.HTTP_400_BAD_REQUEST
+    #         )
+    #     if author_id == user.id:
+    #         raise serializers.ValidationError(
+    #             code=status.HTTP_400_BAD_REQUEST
+    #         )
+    #     return data
 
     def to_representation(self, instance):
         request = self.context.get('request')
