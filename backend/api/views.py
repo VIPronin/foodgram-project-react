@@ -8,16 +8,16 @@ from rest_framework.filters import SearchFilter
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
-from rest_framework.views import APIView
+# from rest_framework.views import APIView
 
 from recipes.models import (Favorite, Ingredient, Recipe, IngredientRecipe,
                             ShoppingCart, Tag)
 from users.models import Subscriptions, User
 
-from .mixins import ListViewSet
+# from .mixins import ListViewSet
 from .filters import IngredientFilter
 from .pagination import CustomPagination
-from .permissions import IsAuthorOnly
+# from .permissions import IsAuthorOnly
 from .serializers import (CustomUserSerializer, ShortRecipeSerializer,
                           IngredientSerializer, RecipeCreateSerializer,
                           RecipeReadSerializer, ShoppingCartSerializer,
@@ -152,43 +152,56 @@ class UsersViewSet(viewsets.ModelViewSet):
                                              context={'request': request})
         return self.get_paginated_response(serializer.data)
 
-
-class SubscriptionsViewSet(ListViewSet):
-    queryset = Subscriptions.objects.all()
-    serializer_class = SubscriptionsSerializer
-    permission_classes = (IsAuthorOnly, )
-
-    def get_queryset(self):
-        return Subscriptions.objects.filter(user=self.request.user)
-
-
-class SuSubscriptionCreateDeleteAPIView(APIView):
-    permission_classes = (IsAuthenticatedOrReadOnly, )
-    serializer_class = SubscriptionsSerializer
-
-    @action(methods=('POST', 'DELETE'),
-            url_path='subscribe', detail=True,
-            permission_classes=(IsAuthenticated,))
-    def subscribe_post(self, request, *args, **kwargs):
-        user = request.user
-        following = get_object_or_404(User, pk=self.kwargs.get('user_id'))
-        subscription = Subscriptions.objects.create(
-            user=user, following=following)
-        serializer = SubscriptionsSerializer(
-            subscription,
-            context={'request': request},
-        )
+    @action(detail=True, methods=['post'],
+            permission_classes=[IsAuthenticated])
+    def subscribe_post(self, request, pk):
+        context = {'request': request}
+        author = get_object_or_404(User, id=pk)
+        cart_data = {
+            'user': request.user.id,
+            'author': author.id
+        }
+        serializer = SubscriptionsSerializer(data=cart_data, context=context)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def subscribe_del(self, request, id):
-        user = request.user
-        following = get_object_or_404(User, id=id)
-        deleted = Subscriptions.objects.get(
-            user=user, following=following).delete()
-        if deleted:
-            return Response({
-                'message': 'Вы отписались от этого автора'},
-                status=status.HTTP_204_NO_CONTENT)
+# class SubscriptionsViewSet(ListViewSet):
+#     queryset = Subscriptions.objects.all()
+#     serializer_class = SubscriptionsSerializer
+#     permission_classes = (IsAuthorOnly, )
+
+#     def get_queryset(self):
+#         return Subscriptions.objects.filter(user=self.request.user)
+
+
+# class SuSubscriptionCreateDeleteAPIView(APIView):
+#     permission_classes = (IsAuthenticatedOrReadOnly, )
+#     serializer_class = SubscriptionsSerializer
+
+#     @action(methods=('POST', 'DELETE'),
+#             url_path='subscribe', detail=True,
+#             permission_classes=(IsAuthenticated,))
+#     def subscribe_post(self, request, *args, **kwargs):
+#         user = request.user
+#         following = get_object_or_404(User, pk=self.kwargs.get('user_id'))
+#         subscription = Subscriptions.objects.create(
+#             user=user, following=following)
+#         serializer = SubscriptionsSerializer(
+#             subscription,
+#             context={'request': request},
+#         )
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+#     def subscribe_del(self, request, id):
+#         user = request.user
+#         following = get_object_or_404(User, id=id)
+#         deleted = Subscriptions.objects.get(
+#             user=user, following=following).delete()
+#         if deleted:
+#             return Response({
+#                 'message': 'Вы отписались от этого автора'},
+#                 status=status.HTTP_204_NO_CONTENT)
 
     # @action(methods=('POST', 'DELETE'),
     #         url_path='subscribe', detail=True,
