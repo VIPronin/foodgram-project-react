@@ -169,26 +169,23 @@ class SuSubscriptionCreateDeleteAPIView(APIView):
     # @action(methods=('POST', 'DELETE'),
     #         url_path='subscribe', detail=True,
     #         permission_classes=(IsAuthenticated,))
-    def subscribe_post(self, request, pk):
+    def post(self, request, author_id):
         user = request.user
-        following = get_object_or_404(User, pk=pk)
-        subscription = Subscriptions.objects.create(
-            user=user, following=following)
+        author = get_object_or_404(User, pk=author_id)
+        subscription = Subscriptions.objects.create(user=user, author=author)
         serializer = SubscriptionsSerializer(
-            subscription,
-            context={'request': request},
-        )
+            subscription, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def subscribe_del(self, request, pk):
+    def delete(self, request, author_id):
         user = request.user
-        following = get_object_or_404(User, pk=pk)
-        deleted = Subscriptions.objects.get(
-            user=user, following=following).delete()
-        if deleted:
-            return Response({
-                'message': 'Вы отписались от этого автора'},
-                status=status.HTTP_204_NO_CONTENT)
+        author = get_object_or_404(User, pk=author_id)
+        subscription = Subscriptions.objects.filter(user=user, author=author)
+        if subscription.exists():
+            subscription.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
     # @action(methods=('POST', 'DELETE'),
     #         url_path='subscribe', detail=True,
