@@ -20,7 +20,8 @@ from .pagination import CustomPagination
 # from .permissions import IsAuthorOnly
 from .serializers import (CustomUserSerializer, ShortRecipeSerializer,
                           IngredientSerializer, RecipeCreateSerializer,
-                          RecipeReadSerializer, ShoppingCartSerializer, SubscriptionsSerializer,
+                          RecipeReadSerializer, ShoppingCartSerializer,
+                          SubscriptionsSerializer,
                           TagSerializer, UserCreateSerializer)
 
 
