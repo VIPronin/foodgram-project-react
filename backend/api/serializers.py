@@ -74,7 +74,7 @@ class CustomUserSerializer(UserSerializer):
             'last_name',
             'is_subscribed',
         )
-    
+
     def get_sub(self, obj):
         try:
             if self.context['request'].user.is_anonymous:
@@ -127,7 +127,7 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
             'is_subscribed',
             'recipes'
         )
-    
+
     def get_sub(self, obj):
         try:
             if self.context['request'].user.is_anonymous:
