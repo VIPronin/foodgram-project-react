@@ -4,7 +4,7 @@ from rest_framework import serializers  # , status
 
 from recipes.models import (Favorite, Ingredient, Recipe, IngredientRecipe,
                             ShoppingCart, Tag)
-from users.models import User  # , Subscriptions
+from users.models import User, Subscriptions
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -52,7 +52,7 @@ class CustomUserSerializer(UserSerializer):
     и проверки подписан ли пользователь.
     """
     is_subscribed = serializers.SerializerMethodField(read_only=True)
-    username = serializers.CharField(required=True)
+    username = serializers.CharField('get_sub', required=True)
     first_name = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
 
@@ -68,12 +68,23 @@ class CustomUserSerializer(UserSerializer):
         model = User
         fields = (
             'email',
-            # 'id',
+            'id',
             'username',
             'first_name',
             'last_name',
             'is_subscribed',
         )
+    
+    def get_sub(self, obj):
+        try:
+            if self.context['request'].user.is_anonymous:
+                return False
+            return Subscriptions.objects.filter(
+                author=obj,
+                follower=self.context['request'].user
+            ).exists()
+        except Exception:
+            return False
 
 
 class SubsSerializer(serializers.ModelSerializer):
@@ -83,7 +94,7 @@ class SubsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('name', 'image', 'cooking_time')
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class SubscriptionsSerializer(serializers.ModelSerializer):
@@ -92,7 +103,7 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
     """
 
     is_subscribed = serializers.SerializerMethodField(read_only=True)
-    username = serializers.CharField(required=True)
+    username = serializers.CharField('get_sub', required=True)
     first_name = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
     recipes = SubsSerializer(many=True)
@@ -109,13 +120,24 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'email',
-            # 'id',
+            'id',
             'username',
             'first_name',
             'last_name',
             'is_subscribed',
             'recipes'
         )
+    
+    def get_sub(self, obj):
+        try:
+            if self.context['request'].user.is_anonymous:
+                return False
+            return Subscriptions.objects.filter(
+                author=obj,
+                follower=self.context['request'].user
+            ).exists()
+        except Exception:
+            return False
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -142,7 +164,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'email',
-            # 'id',
+            'id',
             'username',
             'first_name',
             'last_name',
