@@ -4,7 +4,7 @@ from rest_framework import serializers  # , status
 
 from recipes.models import (Favorite, Ingredient, Recipe, IngredientRecipe,
                             ShoppingCart, Tag)
-from users.models import User, Subscriptions
+from users.models import User  # , Subscriptions
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -66,7 +66,14 @@ class CustomUserSerializer(UserSerializer):
 
     class Meta:
         model = User
-        fields = '__all__'
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+        )
 
 
 class SubsSerializer(serializers.ModelSerializer):
@@ -99,8 +106,16 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
         )
 
     class Meta:
-        model = Subscriptions
-        fields = ('user', 'author')
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes'
+        )
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
