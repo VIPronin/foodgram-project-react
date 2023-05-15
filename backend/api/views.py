@@ -143,12 +143,14 @@ class UsersViewSet(viewsets.ModelViewSet):
     # search_fields = ('username',)
 
     def get_queryset(self):
+        print(self.action)
         if self.action == 'subscriptions':
             subs = self.request.user.is_following.all()
             return User.objects.filter(is_followed__in=subs)
         return User.objects.all()
 
     def get_serializer_class(self):
+        print(self.action)
         if self.action in ('list', 'retrieve', 'me'):
             return CustomUserSerializer
         if self.action == 'subscriptions':
@@ -161,8 +163,9 @@ class UsersViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(methods=('GET', ), detail=False)
-    def read_subscribe(self, request):
+    @action(['get'], detail=False)
+    def subscriptions(self, request):
+        print('123345zgdfzgb')
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
         if page is not None:

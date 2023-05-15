@@ -52,7 +52,7 @@ class CustomUserSerializer(UserSerializer):
     и проверки подписан ли пользователь.
     """
     is_subscribed = serializers.SerializerMethodField(read_only=True)
-    username = serializers.CharField('get_sub', required=True)
+    username = serializers.CharField(required=True)
     first_name = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
 
@@ -75,16 +75,16 @@ class CustomUserSerializer(UserSerializer):
             'is_subscribed',
         )
 
-    def get_sub(self, obj):
-        try:
-            if self.context['request'].user.is_anonymous:
-                return False
-            return Subscriptions.objects.filter(
-                author=obj,
-                follower=self.context['request'].user
-            ).exists()
-        except Exception:
-            return False
+    # def get_sub(self, obj):
+    #     try:
+    #         if self.context['request'].user.is_anonymous:
+    #             return False
+    #         return Subscriptions.objects.filter(
+    #             author=obj,
+    #             follower=self.context['request'].user
+    #         ).exists()
+    #     except Exception:
+    #         return False
 
 
 class SubsSerializer(serializers.ModelSerializer):
@@ -103,7 +103,7 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
     """
 
     is_subscribed = serializers.SerializerMethodField(read_only=True)
-    username = serializers.CharField('get_sub', required=True)
+    username = serializers.CharField( required=True)
     first_name = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
     recipes = SubsSerializer(many=True)
@@ -128,16 +128,16 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
             'recipes'
         )
 
-    def get_sub(self, obj):
-        try:
-            if self.context['request'].user.is_anonymous:
-                return False
-            return Subscriptions.objects.filter(
-                author=obj,
-                follower=self.context['request'].user
-            ).exists()
-        except Exception:
-            return False
+    # def get_sub(self, obj):
+    #     try:
+    #         if self.context['request'].user.is_anonymous:
+    #             return False
+    #         return Subscriptions.objects.filter(
+    #             author=obj,
+    #             follower=self.context['request'].user
+    #         ).exists()
+    #     except Exception:
+    #         return False
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
