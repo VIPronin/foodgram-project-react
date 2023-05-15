@@ -21,7 +21,7 @@ from .pagination import CustomPagination
 from .serializers import (CustomUserSerializer, ShortRecipeSerializer,
                           IngredientSerializer, RecipeCreateSerializer,
                           RecipeReadSerializer, ShoppingCartSerializer,
-                          SubscriptionsSerializer, TagSerializer)
+                          TagSerializer)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -141,16 +141,16 @@ class UsersViewSet(viewsets.ModelViewSet):
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
 
-    @action(methods=('GET', ),
-            url_path='subscriptions', detail=False,
+    @action(methods=('GET', ), detail=False,
             permission_classes=(IsAuthenticated,))
     def read_subscribe(self, request):
-        user = request.user
-        subscriptions = Subscriptions.objects.filter(user=user)
-        page = self.paginate_queryset(subscriptions)
-        serializer = SubscriptionsSerializer(page, many=True,
-                                             context={'request': request})
-        return self.get_paginated_response(serializer.data)
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     @action(detail=True, methods=['POST', 'DELETE'],
             permission_classes=[IsAuthenticated])
