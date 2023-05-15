@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.filters import SearchFilter
+# from rest_framework.filters import SearchFilter
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
@@ -135,12 +135,12 @@ class UsersViewSet(viewsets.ModelViewSet):
     """
     Получить список всех пользователей. Права доступа: Администратор
     """
-    queryset = User.objects.all()
+    # queryset = User.objects.all()
     serializer_class = CustomUserSerializer
-    pagination_class = CustomPagination
+    # pagination_class = CustomPagination
     permission_classes = (IsAuthenticatedOrReadOnly, )
-    filter_backends = (SearchFilter,)
-    search_fields = ('username',)
+    # filter_backends = (SearchFilter,)
+    # search_fields = ('username',)
 
     def get_queryset(self):
         if self.action == 'subscriptions':
@@ -148,18 +148,18 @@ class UsersViewSet(viewsets.ModelViewSet):
             return User.objects.filter(is_followed__in=subs)
         return User.objects.all()
 
-    @action(['GET'], detail=False)
-    def me(self, request, *args, **kwargs):
-        instance = request.user
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve', 'me'):
             return CustomUserSerializer
         if self.action == 'subscriptions':
             return SubscriptionsSerializer
         return UserCreateSerializer
+
+    @action(['GET'], detail=False)
+    def me(self, request, *args, **kwargs):
+        instance = request.user
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=('GET', ), detail=False,
             permission_classes=(IsAuthenticated,))
