@@ -132,6 +132,7 @@ class UsersViewSet(viewsets.ModelViewSet):
     """
     serializer_class = CustomUserSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
+    lookup_field = 'pk'
 
     def get_queryset(self):
         print(self.action)
