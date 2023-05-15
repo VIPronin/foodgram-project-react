@@ -68,7 +68,7 @@ class CustomUserSerializer(UserSerializer):
         model = User
         fields = (
             'email',
-            'id',
+            # 'id',
             'username',
             'first_name',
             'last_name',
@@ -83,7 +83,7 @@ class SubsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
+        fields = ('name', 'image', 'cooking_time')
 
 
 class SubscriptionsSerializer(serializers.ModelSerializer):
@@ -109,7 +109,7 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'email',
-            'id',
+            # 'id',
             'username',
             'first_name',
             'last_name',
@@ -142,7 +142,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'email',
-            'id',
+            # 'id',
             'username',
             'first_name',
             'last_name',
