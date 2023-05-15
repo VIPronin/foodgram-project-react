@@ -142,11 +142,13 @@ class UsersViewSet(viewsets.ModelViewSet):
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
 
+    def get_queryset(self):
+        if self.action == 'subscriptions':
+            subs = self.request.user.is_following.all()
+            return User.objects.filter(is_followed__in=subs)
+        return User.objects.all()
+
     def get_serializer_class(self):
-        """
-        Кастомизация сериализаторов в связи с требованиями ТЗ
-        по полям ввода/вывода.
-        """
         if self.action in ('list', 'retrieve', 'me'):
             return CustomUserSerializer
         if self.action == 'subscriptions':
