@@ -52,6 +52,9 @@ class CustomUserSerializer(UserSerializer):
     и проверки подписан ли пользователь.
     """
     is_subscribed = serializers.SerializerMethodField()
+    username = serializers.CharField()
+    first_name = serializers.CharField()
+    email = serializers.EmailField()
 
     def get_is_subscribed(self, obj: User) -> bool:
         """проверяет подписан ли автор на рецепт"""
@@ -64,6 +67,72 @@ class CustomUserSerializer(UserSerializer):
     class Meta:
         model = User
         fields = '__all__'
+
+
+class SubsSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для связи подписчиков и рецептов.
+    """
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+
+
+class SubscriptionsSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для подписчиков.
+    """
+
+    is_subscribed = serializers.SerializerMethodField()
+    username = serializers.CharField()
+    first_name = serializers.CharField()
+    email = serializers.EmailField()
+    recipes = SubsSerializer(many=True)
+
+    def get_is_subscribed(self, obj: User) -> bool:
+        """проверяет подписан ли автор на рецепт"""
+        user = self.context.get('request').user
+        return (
+            user.is_authenticated
+            and obj.following.filter(user=user).exists()
+        )
+
+    class Meta:
+        model = Subscriptions
+        fields = ('user', 'author')
+
+
+class UserCreateSerializer(serializers.ModelSerializer):
+    username = serializers.CharField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    email = serializers.EmailField()
+    password = serializers.CharField()
+
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        passwd = validated_data.pop('password')
+        instance.set_password(passwd)
+        instance.save()
+        ShoppingCart.objects.create(user=instance)
+        Favorite.objects.create(user=instance)
+        return instance
+
+    def to_representation(self, instance):
+        serializer = UserSerializer(instance)
+        return serializer.data
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'password'
+        )
 
 
 class ReadIngredientRecipeSerializer(serializers.ModelSerializer):
@@ -218,43 +287,6 @@ class SubscriptionsListSerializer(serializers.ModelSerializer):
             'email', 'username', 'first_name',
             'last_name', 'is_subscribed', 'recipes', 'recipes_count'
         )
-
-
-class SubscriptionsSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для подписчиков.
-    """
-
-    # def validate(self, data) -> bool:
-    #     """
-    #     Проверка подписки
-    #     """
-    #     user = self.context.get('request').user
-    #     subscription_id = data.get('id')
-    #     user_id = data.get('user_id')
-    #     author_id = data.get('author_id')
-    #     subscription = Subscriptions.objects.filter(id=subscription_id,
-    #                                                 user=user_id,
-    #                                                 author=author_id).exists()
-    #     if subscription:
-    #         raise serializers.ValidationError(
-    #             code=status.HTTP_400_BAD_REQUEST
-    #         )
-    #     if author_id == user.id:
-    #         raise serializers.ValidationError(
-    #             code=status.HTTP_400_BAD_REQUEST
-    #         )
-    #     return data
-
-    def to_representation(self, instance):
-        request = self.context.get('request')
-        context = {'request': request}
-        return SubscriptionsListSerializer(
-            instance.author, context=context).data
-
-    class Meta:
-        model = Subscriptions
-        fields = ('user', 'author')
 
 
 class FavoriteSerializer(serializers.ModelSerializer):

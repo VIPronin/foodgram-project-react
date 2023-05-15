@@ -152,19 +152,58 @@ class UsersViewSet(viewsets.ModelViewSet):
                                              context={'request': request})
         return self.get_paginated_response(serializer.data)
 
-    @action(detail=True, methods=['post'],
+    @action(detail=True, methods=['POST', 'DELETE'],
             permission_classes=[IsAuthenticated])
-    def subscribe_post(self, request, pk):
-        context = {'request': request}
-        author = get_object_or_404(User, id=pk)
-        cart_data = {
-            'user': request.user.id,
-            'author': author.id
-        }
-        serializer = SubscriptionsSerializer(data=cart_data, context=context)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    # def subscribe_post(self, request, pk):
+    #     context = {'request': request}
+    #     author = get_object_or_404(User, id=pk)
+    #     cart_data = {
+    #         'user': request.user.id,
+    #         'author': author.id
+    #     }
+    #     serializer = SubscriptionsSerializer(data=cart_data, context=context)
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+    def subscribe(self, request, pk):
+        user = request.user
+        if not User.objects.filter(pk=pk).exists():
+            return Response(
+                'Объект не найден',
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        author = User.objects.get(pk=pk)
+        if request.method == 'POST':
+            if user == author:
+                return Response(
+                    'Нельзя подписаться на себя',
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            if Subscriptions.objects.filter(
+                    author=author,
+                    follower=user
+            ).exists():
+                return Response(
+                    'Вы уже подписаны',
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            Subscriptions.objects.create(author=author, follower=user)
+            return Response(
+                'Подписка успешно создана',
+                status=status.HTTP_201_CREATED
+            )
+        if request.method == 'DELETE':
+            if not Subscriptions.objects.filter(
+                    author=author,
+                    follower=user
+            ).exists():
+                return Response(
+                    'Вы и так не подписаны',
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            sub = Subscriptions.objects.get(author=author, follower=user)
+            sub.delete()
+        return Response('Успешная отписка', status=status.HTTP_200_OK)
 
 # class SubscriptionsViewSet(ListViewSet):
 #     queryset = Subscriptions.objects.all()
