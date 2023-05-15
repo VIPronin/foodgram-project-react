@@ -1,10 +1,10 @@
 from djoser.serializers import UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework import serializers  # , status
+from rest_framework import serializers
 
 from recipes.models import (Favorite, Ingredient, Recipe, IngredientRecipe,
                             ShoppingCart, Tag)
-from users.models import User, Subscriptions
+from users.models import User
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -75,17 +75,6 @@ class CustomUserSerializer(UserSerializer):
             'is_subscribed',
         )
 
-    # def get_sub(self, obj):
-    #     try:
-    #         if self.context['request'].user.is_anonymous:
-    #             return False
-    #         return Subscriptions.objects.filter(
-    #             author=obj,
-    #             follower=self.context['request'].user
-    #         ).exists()
-    #     except Exception:
-    #         return False
-
 
 class SubsSerializer(serializers.ModelSerializer):
     """
@@ -103,7 +92,7 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
     """
 
     is_subscribed = serializers.SerializerMethodField(read_only=True)
-    username = serializers.CharField( required=True)
+    username = serializers.CharField(required=True)
     first_name = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
     recipes = SubsSerializer(many=True)
@@ -127,17 +116,6 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
             'is_subscribed',
             'recipes'
         )
-
-    # def get_sub(self, obj):
-    #     try:
-    #         if self.context['request'].user.is_anonymous:
-    #             return False
-    #         return Subscriptions.objects.filter(
-    #             author=obj,
-    #             follower=self.context['request'].user
-    #         ).exists()
-    #     except Exception:
-    #         return False
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
