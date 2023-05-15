@@ -20,8 +20,8 @@ from .pagination import CustomPagination
 # from .permissions import IsAuthorOnly
 from .serializers import (CustomUserSerializer, ShortRecipeSerializer,
                           IngredientSerializer, RecipeCreateSerializer,
-                          RecipeReadSerializer, ShoppingCartSerializer,
-                          TagSerializer)
+                          RecipeReadSerializer, ShoppingCartSerializer, SubscriptionsSerializer,
+                          TagSerializer, UserCreateSerializer)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -140,6 +140,17 @@ class UsersViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly, )
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
+
+    def get_serializer_class(self):
+        """
+        Кастомизация сериализаторов в связи с требованиями ТЗ
+        по полям ввода/вывода.
+        """
+        if self.action in ('list', 'retrieve', 'me'):
+            return CustomUserSerializer
+        if self.action == 'subscriptions':
+            return SubscriptionsSerializer
+        return UserCreateSerializer
 
     @action(methods=('GET', ), detail=False,
             permission_classes=(IsAuthenticated,))
