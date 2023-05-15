@@ -136,8 +136,8 @@ class UsersViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         print(self.action)
         if self.action == 'subscriptions':
-            subs = self.request.user.is_following.all()
-            return User.objects.filter(is_followed__in=subs)
+            subs = self.request.user.following.all()
+            return User.objects.filter(follower__in=subs)
         return User.objects.all()
 
     def get_serializer_class(self):
@@ -156,7 +156,6 @@ class UsersViewSet(viewsets.ModelViewSet):
 
     @action(['get'], detail=False)
     def subscriptions(self, request):
-        print('123345zgdfzgb')
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
         if page is not None:
