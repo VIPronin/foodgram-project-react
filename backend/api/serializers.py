@@ -51,10 +51,10 @@ class CustomUserSerializer(UserSerializer):
     Сериализатор для получения данных о пользователях.
     и проверки подписан ли пользователь.
     """
-    is_subscribed = serializers.SerializerMethodField()
-    username = serializers.CharField()
-    first_name = serializers.CharField()
-    email = serializers.EmailField()
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
+    username = serializers.CharField(required=True)
+    first_name = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
 
     def get_is_subscribed(self, obj: User) -> bool:
         """проверяет подписан ли автор на рецепт"""
@@ -91,10 +91,10 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
     Сериализатор для подписчиков.
     """
 
-    is_subscribed = serializers.SerializerMethodField()
-    username = serializers.CharField()
-    first_name = serializers.CharField()
-    email = serializers.EmailField()
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
+    username = serializers.CharField(required=True)
+    first_name = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
     recipes = SubsSerializer(many=True)
 
     def get_is_subscribed(self, obj: User) -> bool:
@@ -119,11 +119,11 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
-    username = serializers.CharField()
-    first_name = serializers.CharField()
-    last_name = serializers.CharField()
-    email = serializers.EmailField()
-    password = serializers.CharField()
+    username = serializers.CharField(required=True)
+    first_name = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(required=True)
 
     def create(self, validated_data):
         instance = super().create(validated_data)

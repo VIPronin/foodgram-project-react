@@ -161,8 +161,7 @@ class UsersViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(methods=('GET', ), detail=False,
-            permission_classes=(IsAuthenticated,))
+    @action(methods=('GET', ), detail=False)
     def read_subscribe(self, request):
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
@@ -172,8 +171,7 @@ class UsersViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @action(detail=True, methods=['POST', 'DELETE'],
-            permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['POST', 'DELETE'])
     # def subscribe_post(self, request, pk):
     #     context = {'request': request}
     #     author = get_object_or_404(User, id=pk)
