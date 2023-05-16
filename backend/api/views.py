@@ -12,7 +12,7 @@ from recipes.models import (Ingredient, Recipe, IngredientRecipe,
                             ShoppingCart, Tag)
 from users.models import Subscriptions, User
 
-from .filters import IngredientFilter
+from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .serializers import (CustomUserSerializer, ShortRecipeSerializer,
                           IngredientSerializer, RecipeCreateSerializer,
@@ -25,9 +25,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """
     Для отображения рецептов.
     """
+    serializer_class = RecipeReadSerializer
     queryset = Recipe.objects.all()
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PATCH'):
