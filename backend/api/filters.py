@@ -11,7 +11,7 @@ class IngredientFilter(FilterSet):
         fields = ('name',)
 
 
-class RecipeFilter(filters.FilterSet):
+class RecipeFilter(FilterSet):
     tags = filters.AllValuesMultipleFilter(field_name='tags__slug')
     author = filters.NumberFilter(field_name='author__id')
     is_favorited = filters.BooleanFilter(method='filter_is_favorited')
