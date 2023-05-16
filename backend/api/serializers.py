@@ -241,6 +241,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     ingredients = CreateIngredientRecipeSerializer(
         many=True,
     )
+    is_favorited = serializers.SerializerMethodField()
 
     @staticmethod
     def add_ingredients(recipe, ingredients):
