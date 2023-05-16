@@ -8,7 +8,7 @@ from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
-from recipes.models import (Favorite, Ingredient, Recipe, IngredientRecipe,
+from recipes.models import (Ingredient, Recipe, IngredientRecipe,
                             ShoppingCart, Tag)
 from users.models import Subscriptions, User
 
@@ -48,16 +48,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(
-        detail=True,
-        methods=('POST', 'DELETE'),
-        url_path='favorite',
-        # permission_classes=[IsAuthenticated]
-    )
+    @action(methods=('post', 'delete'), detail=True)
     def favorite(self, request, pk):
-        if request.method == 'POST':
-            return self.add_to(Favorite, request.user, pk)
-        return self.delete_from(Favorite, request.user, pk)
+        return self.manage_fav_or_shopcart(
+            pk,
+            self.request.user.favorites
+        )
 
     @action(detail=True, methods=['post'],
             permission_classes=[IsAuthenticated])
